@@ -26,6 +26,8 @@ ditests_find_llvm_progs(DITESTS_LIT_EXEC
   ABORT_IF_MISSING
 )
 
+set(DITEST_MUST_LAYOUT_FILE ${PROJECT_SOURCE_DIR}/support/must-layout-2.xml)
+
 configure_ditests_lit_site_cfg(
   ${CMAKE_CURRENT_SOURCE_DIR}/lit.site.cfg.in
   ${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg
