@@ -1,0 +1,17 @@
+@LIT_SITE_CFG_IN_HEADER@
+
+import sys
+import os
+
+config.llvm_version=@LLVM_VERSION_MAJOR@
+config.filecheck="@DITESTS_FILECHECK_EXEC@"
+
+# Tool specifics:
+config.typeart_mpicc="@typeart_mpicc@"
+config.must_run="@must_run@"
+
+config.ditests_build_dir="@DITESTS_BUILD_DIR@"
+
+# Let the main config do the real work.
+config.loaded_site_config = True
+lit_config.load_config(config, "@DITESTS_PROJECT_DIR@/testsuite/lit.cfg")
