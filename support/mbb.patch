@@ -1,0 +1,144 @@
+diff --git a/scripts/Infrastructure/GeneratorManager.py b/scripts/Infrastructure/GeneratorManager.py
+index abaca440..42ee7482 100644
+--- a/scripts/Infrastructure/GeneratorManager.py
++++ b/scripts/Infrastructure/GeneratorManager.py
+@@ -229,7 +229,8 @@ class GeneratorManager:
+                             generator = obj()
+                             valid = True
+                             for feature in generator.get_feature():
+-                                if feature not in featurelist:
++                                print(feature)
++                                if feature not in ["dtype"]:
+                                     if print_discovery:
+                                         print("Generator has unknown feature: %s" % feature)
+                                     valid = False
+diff --git a/scripts/Infrastructure/TemplateFactory.py b/scripts/Infrastructure/TemplateFactory.py
+index 3772f8f7..cb14dc55 100644
+--- a/scripts/Infrastructure/TemplateFactory.py
++++ b/scripts/Infrastructure/TemplateFactory.py
+@@ -45,23 +45,6 @@ predefined_mpi_dtype_consants = {
+     'MPI_UINT16_T': 'uint16_t',
+     'MPI_UINT32_T': 'uint32_t',
+     'MPI_UINT64_T': 'uint64_t',
+-    'MPI_C_COMPLEX': 'float _Complex',
+-    'MPI_C_FLOAT_COMPLEX': 'float _Complex',
+-    'MPI_C_DOUBLE_COMPLEX': 'double _Complex',
+-    'MPI_C_LONG_DOUBLE_COMPLEX': 'long double _Complex',
+-    'MPI_BYTE': 'char',
+-    'MPI_PACKED': 'char',
+-    # MPI 4
+-    'MPI_AINT': 'MPI_Aint',
+-    'MPI_COUNT': 'MPI_Count',
+-    'MPI_OFFSET': 'MPI_Offset',
+-    # predefined struct types
+-    'MPI_2INT': "struct {int a; int b;}",
+-    'MPI_FLOAT_INT': "struct {float a; int b;}",
+-    'MPI_DOUBLE_INT': "struct {double a; int b;}",
+-    'MPI_LONG_INT': "struct {long a; int b;}",
+-    'MPI_SHORT_INT': "struct {short a; int b;}",
+-    'MPI_LONG_DOUBLE_INT': "struct {long double a; int b;}"
+ }
+ predefined_types = list(predefined_mpi_dtype_consants.keys())
+ 
+diff --git a/scripts/errors/dtypes/DtypeMissmatch.py b/scripts/errors/dtypes/DtypeMissmatch.py
+index 76fc3971..10496cef 100644
+--- a/scripts/errors/dtypes/DtypeMissmatch.py
++++ b/scripts/errors/dtypes/DtypeMissmatch.py
+@@ -20,11 +20,8 @@ from Infrastructure.Variables import *
+ # TODO refactoring into different file
+ # test if the tool chan deal with messages send over different communicators
+ predefined_comms = ["MPI_COMM_WORLD"]
+-comm_creators = ["mpi_comm_dup", "mpi_comm_dup_with_info", "mpi_comm_idup",
+-                 "mpi_comm_idup_with_info", "mpi_comm_create", "mpi_comm_create_group", "mpi_comm_split",
+-                 "mpi_comm_split_type", "mpi_comm_create_from_group"
+-                 ]
+-intercomms = ["mpi_intercomm_create", "mpi_intercomm_merge", "mpi_intercomm_create_from_groups"]
++comm_creators = []
++intercomms = []
+ 
+ 
+ def get_local_missmatch(type_1, type_2, send_func, recv_func):
+@@ -133,33 +130,31 @@ def is_combination_compatible(s, r):
+ class DtypeMissmatch(ErrorGenerator):
+     invalid_bufs = [CorrectParameterFactory().buf_var_name, "NULL"]
+     send_funcs = ["mpi_send",
+-                  "mpi_isend", "mpi_ssend", "mpi_issend", "mpi_rsend", "mpi_irsend", "mpi_bsend", "mpi_ibsend",
+-                  "mpi_send_init", "mpi_ssend_init", "mpi_bsend_init", "mpi_rsend_init", "mpi_psend_init",
+                   ]
+ 
+-    recv_funcs = ["mpi_recv", "mpi_irecv", "mpi_recv_init", "mpi_precv_init"]
++    recv_funcs = ["mpi_recv"]
+ 
+-    sendrecv_funcs = ["mpi_sendrecv", "mpi_sendrecv_replace"]
++    sendrecv_funcs = ["mpi_sendrecv"]
+ 
+     def __init__(self):
+         pass
+ 
+     def get_feature(self):
+-        return ["P2P"]
++        return ["dtype"]
+ 
+     def generate(self, generate_level, real_world_score_table):
+ 
+         # (type,func,comm)
+         important_sends = []
+         important_recvs = []  #
+-        for type in predefined_types + user_defined_types:
++        for type in predefined_types:
+             for send_func in self.send_funcs:
+                 for comm in predefined_comms + comm_creators + intercomms:
+                     important_sends.append((type, send_func, comm))
+                     if generate_level == BASIC_TEST_LEVEL:
+                         break
+ 
+-        for type in predefined_types + user_defined_types:
++        for type in predefined_types:
+             for recv_func in self.recv_funcs:
+                 for comm in predefined_comms + comm_creators + intercomms:
+                     important_recvs.append((type, recv_func, comm))
+@@ -215,11 +210,11 @@ class DtypeMissmatch(ErrorGenerator):
+                     yield get_local_missmatch(type_1, type_2, send_func, recv_func)
+ 
+             # global missmatch: communicator is important
+-            yield get_global_missmatch(type_1, type_2, 1, 1, send_func, recv_func, comm)
++            #yield get_global_missmatch(type_1, type_2, 1, 1, send_func, recv_func, comm)
+ 
+             # global missmatch with size = sizeof(a)* sizeof(b) so that total size match both types
+-            yield get_global_missmatch(type_1, type_2, get_bytes_size_for_type(type_2),
+-                                       get_bytes_size_for_type(type_1), send_func, recv_func, comm)
++            #yield get_global_missmatch(type_1, type_2, get_bytes_size_for_type(type_2),
++            #                           get_bytes_size_for_type(type_1), send_func, recv_func, comm)
+ 
+             if (type_1, comm) not in correct_types_checked:
+                 correct_types_checked.add((type_1, comm))
+diff --git a/scripts/generate.py b/scripts/generate.py
+index a14b9007..66202d43 100644
+--- a/scripts/generate.py
++++ b/scripts/generate.py
+@@ -20,6 +20,8 @@ if __name__ == "__main__":
+     parser.add_argument("--mpi_version", default="4.1", required=False, help="maximum MPI versions to use")
+     parser.add_argument("--count_only", default=False, action="store_true", required=False,
+                         help="Only count the cases dont generate them")
++    parser.add_argument("--filter", default="", action="store", required=False,
++                        help="Only generate for one paradigm")
+ 
+     debug = parser.add_argument_group("Debug", "Arguments used to debug and test the generation progess")
+     debug.add_argument("--generator_dir", action="store", default="scripts/errors", required=False,
+@@ -37,7 +39,7 @@ if __name__ == "__main__":
+         print("Read real world dataset and build scoring table")
+         score_table = get_scoring_table(pd.read_csv(ARGS.real_world_data, header=0, low_memory=False), c_only=True)
+ 
+-    gm = GeneratorManager(ARGS.generator_dir, score_table)
++    gm = GeneratorManager(ARGS.generator_dir, score_table, skip_invalid=True)
+ 
+     # remove all testcases from previous execution (ease of debugging)
+     if ARGS.remove_previous_generation_results:
+@@ -50,6 +52,6 @@ if __name__ == "__main__":
+         gm.count_generated_cases(generation_level=ARGS.level, max_mpi_version=ARGS.mpi_version)
+         exit()
+ 
+-    gm.generate(gencodes_dir, try_compile=ARGS.compile, generation_level=ARGS.level, max_mpi_version=ARGS.mpi_version)
++    gm.generate(gencodes_dir, try_compile=ARGS.compile, generation_level=ARGS.level, max_mpi_version=ARGS.mpi_version, filterlist_=[ARGS.filter])
+ 
+     pass

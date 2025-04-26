@@ -9,3 +9,8 @@ add_custom_target(dimeta-bootstrap
     COMMAND "./dimeta-bootstrap.sh" ${MUST_BASE_PATH}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+add_custom_target(mpibugbench-bootstrap
+    COMMAND "./mbb-bootstrap.sh" ${MUST_BASE_PATH}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)

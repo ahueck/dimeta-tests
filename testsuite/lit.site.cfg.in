@@ -10,6 +10,7 @@ config.filecheck="@DITESTS_FILECHECK_EXEC@"
 config.typeart_mpicc="@typeart_mpicc@"
 config.must_run="@must_run@"
 config.must_layout="@DITEST_MUST_LAYOUT_FILE@"
+config.must_timeout=@DITEST_MUST_TIMEOUT@
 
 config.ditests_build_dir="@DITESTS_BUILD_DIR@"
 

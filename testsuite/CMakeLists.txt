@@ -27,6 +27,14 @@ ditests_find_llvm_progs(DITESTS_LIT_EXEC
 )
 
 set(DITEST_MUST_LAYOUT_FILE ${PROJECT_SOURCE_DIR}/support/must-layout-2.xml)
+set(DITEST_MUST_TIMEOUT 5)
+
+include(ProcessorCount)
+ProcessorCount(NUM_CPU)
+math(EXPR NUM_CPU "${NUM_CPU} / 4")
+if(NUM_CPU EQUAL 0)
+  set(NUM_CPU 1)
+endif()
 
 configure_ditests_lit_site_cfg(
   ${CMAKE_CURRENT_SOURCE_DIR}/lit.site.cfg.in
@@ -71,7 +79,7 @@ function(ditests_add_lit_target)
     ditests_add_lit_testsuite(${TARGET_NAME}
       "Running the lit suite ditests"
       ${SUITE_PATH}
-      ARGS -v -j 1
+      ARGS -v -j ${NUM_CPU}
       PARAMS ditests_site_config=${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg
     )
   endforeach()
@@ -87,7 +95,7 @@ ditests_add_lit_target(SUITES ${DITESTS_SUITES})
 add_test(
   NAME ditests-lit-suite
   COMMAND
-    ${DITESTS_LIT_EXEC} -j 1 --param
+    ${DITESTS_LIT_EXEC} -j ${NUM_CPU} --param
     ditests_site_config=${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
