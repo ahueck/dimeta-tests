@@ -12,6 +12,8 @@ config.must_run="@must_run@"
 config.must_layout="@DITEST_MUST_LAYOUT_FILE@"
 config.must_timeout=@DITEST_MUST_TIMEOUT@
 
+config.environment['TYPEART_TYPEGEN_IR'] = os.getenv('TYPEART_TYPEGEN_IR', '0')
+
 config.ditests_build_dir="@DITESTS_BUILD_DIR@"
 
 # Let the main config do the real work.
