@@ -37,16 +37,17 @@ int main(int argc, char **argv) {
     printf(
         "MBB ERROR: This test needs at least 2 processes to produce a bug!\n");
 
-  double *buf_mpi_double = (double *)calloc(1, sizeof(double));
+  unsigned int *buf_mpi_unsigned =
+      (unsigned int *)calloc(1, sizeof(unsigned int));
 
   int *buf = (int *)calloc(10, sizeof(int));
 
   if (rank == 0) {
-    MPI_Recv(buf_mpi_double, 1, MPI_DOUBLE, 1, 0, MPI_COMM_WORLD,
+    MPI_Recv(buf_mpi_unsigned, 1, MPI_UNSIGNED, 1, 0, MPI_COMM_WORLD,
              MPI_STATUS_IGNORE);
   }
   if (rank == 1) {
-    MPI_Send(buf_mpi_double, 1, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+    MPI_Send(buf_mpi_unsigned, 1, MPI_UNSIGNED, 0, 0, MPI_COMM_WORLD);
   }
   free(buf);
 

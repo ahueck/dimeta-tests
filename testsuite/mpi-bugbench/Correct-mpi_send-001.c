@@ -1,6 +1,7 @@
-// RUN: %typeart-mpicc -O1 -g %s -o %ditests_test_dir/%basename_t.exe
-// RUN: %must-mpiexec  -n 2 %ditests_test_dir/%basename_t.exe
+// RUN: %typeart-mpicc -O2 -g %s -o %ditests_test_dir/%basename_t.exe
+// RUN: %must-mpiexec -n 2 %ditests_test_dir/%basename_t.exe
 // RUN: cat %must-output-json | %filecheck %s
+
 
 // CHECK-NOT: MUST_ERROR_TYPEMATCH_MISMATCH
 
@@ -10,7 +11,7 @@
 
   Version of MPI: 1.0
 
-  Category: P2P
+  Category: dtype
 
 BEGIN_MBB_TESTS
   $ mpirun -np 2 ${EXE}

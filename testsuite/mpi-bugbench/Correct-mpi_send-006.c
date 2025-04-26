@@ -1,6 +1,7 @@
-// RUN: %typeart-mpicc -O1 -g %s -o %ditests_test_dir/%basename_t.exe
-// RUN: %must-mpiexec  -n 2 %ditests_test_dir/%basename_t.exe
+// RUN: %typeart-mpicc -O2 -g %s -o %ditests_test_dir/%basename_t.exe
+// RUN: %must-mpiexec -n 2 %ditests_test_dir/%basename_t.exe
 // RUN: cat %must-output-json | %filecheck %s
+
 
 // CHECK-NOT: MUST_ERROR_TYPEMATCH_MISMATCH
 
@@ -10,7 +11,7 @@
 
   Version of MPI: 1.0
 
-  Category: P2P
+  Category: dtype
 
 BEGIN_MBB_TESTS
   $ mpirun -np 2 ${EXE}
@@ -36,16 +37,17 @@ int main(int argc, char **argv) {
     printf(
         "MBB ERROR: This test needs at least 2 processes to produce a bug!\n");
 
-  uint64_t *buf_mpi_uint64_t = (uint64_t *)calloc(1, sizeof(uint64_t));
+  signed long long int *buf_mpi_long_long_int =
+      (signed long long int *)calloc(1, sizeof(signed long long int));
 
   int *buf = (int *)calloc(10, sizeof(int));
 
   if (rank == 0) {
-    MPI_Recv(buf_mpi_uint64_t, 1, MPI_UINT64_T, 1, 0, MPI_COMM_WORLD,
+    MPI_Recv(buf_mpi_long_long_int, 1, MPI_LONG_LONG_INT, 1, 0, MPI_COMM_WORLD,
              MPI_STATUS_IGNORE);
   }
   if (rank == 1) {
-    MPI_Send(buf_mpi_uint64_t, 1, MPI_UINT64_T, 0, 0, MPI_COMM_WORLD);
+    MPI_Send(buf_mpi_long_long_int, 1, MPI_LONG_LONG_INT, 0, 0, MPI_COMM_WORLD);
   }
   free(buf);
 

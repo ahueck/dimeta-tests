@@ -1,21 +1,22 @@
-// RUN: %typeart-mpicc -O1 -g %s -o %ditests_test_dir/%basename_t.exe
-// RUN: %must-mpiexec  -n 2 %ditests_test_dir/%basename_t.exe
+// RUN: %typeart-mpicc -O2 -g %s -o %ditests_test_dir/%basename_t.exe
+// RUN: %must-mpiexec -n 2 %ditests_test_dir/%basename_t.exe
 // RUN: cat %must-output-json | %filecheck %s
+
 
 // CHECK: MUST_ERROR_TYPEMATCH_MISMATCH
 
 /* ///////////////////////// The MPI Bug Bench ////////////////////////
 
-  Description: datatype missmatch: Buffer: MPI_INT MPI_Call: MPI_LONG_LONG
+  Description: datatype missmatch: Buffer: MPI_INT MPI_Call: MPI_SHORT
 
   Version of MPI: 1.0
 
-  Category: P2P
+  Category: dtype
 
 BEGIN_MBB_TESTS
   $ mpirun -np 2 ${EXE}
   | ERROR LocalParameterMissmatch
-  | LocalParameterMissmatch-Dtype-mpi_isend
+  | LocalParameterMissmatch-Dtype-mpi_send
 END_MBB_TESTS
 //////////////////////       End of MBI headers        /////////////////// */
 
@@ -28,7 +29,6 @@ END_MBB_TESTS
 int main(int argc, char **argv) {
   int nprocs = -1;
   int rank = -1;
-  MPI_Request mpi_request_0 = MPI_REQUEST_NULL;
 
   MPI_Init(&argc, &argv);
   MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
@@ -41,24 +41,21 @@ int main(int argc, char **argv) {
 
   signed int *buf_mpi_int = (signed int *)calloc(10, sizeof(signed int));
 
-  signed long long int *buf_mpi_long_long =
-      (signed long long int *)calloc(10, sizeof(signed long long int));
+  signed short int *buf_mpi_short =
+      (signed short int *)calloc(10, sizeof(signed short int));
 
   if (rank == 0) {
-    /*MBBERROR_BEGIN*/ MPI_Irecv(buf_mpi_int, 10, MPI_LONG_LONG, 1, 0,
-                                 MPI_COMM_WORLD,
-                                 &mpi_request_0); /*MBBERROR_END*/
-    MPI_Wait(&mpi_request_0, MPI_STATUS_IGNORE);
+    /*MBBERROR_BEGIN*/ MPI_Recv(buf_mpi_int, 10, MPI_SHORT, 1, 0,
+                                MPI_COMM_WORLD,
+                                MPI_STATUS_IGNORE); /*MBBERROR_END*/
   }
   if (rank == 1) {
-    /*MBBERROR_BEGIN*/ MPI_Isend(buf_mpi_int, 10, MPI_LONG_LONG, 0, 0,
-                                 MPI_COMM_WORLD,
-                                 &mpi_request_0); /*MBBERROR_END*/
-    MPI_Wait(&mpi_request_0, MPI_STATUS_IGNORE);
+    /*MBBERROR_BEGIN*/ MPI_Send(buf_mpi_int, 10, MPI_SHORT, 0, 0,
+                                MPI_COMM_WORLD); /*MBBERROR_END*/
   }
   free(buf);
   free(buf_mpi_int);
-  free(buf_mpi_long_long);
+  free(buf_mpi_short);
 
   MPI_Finalize();
   printf("Rank %d finished normally\n", rank);
