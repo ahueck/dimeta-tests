@@ -13,17 +13,13 @@ index abaca440..42ee7482 100644
                                          print("Generator has unknown feature: %s" % feature)
                                      valid = False
 diff --git a/scripts/Infrastructure/TemplateFactory.py b/scripts/Infrastructure/TemplateFactory.py
-index 3772f8f7..cb14dc55 100644
+index 3772f8f7..6e2d9aec 100644
 --- a/scripts/Infrastructure/TemplateFactory.py
 +++ b/scripts/Infrastructure/TemplateFactory.py
-@@ -45,23 +45,6 @@ predefined_mpi_dtype_consants = {
-     'MPI_UINT16_T': 'uint16_t',
-     'MPI_UINT32_T': 'uint32_t',
-     'MPI_UINT64_T': 'uint64_t',
--    'MPI_C_COMPLEX': 'float _Complex',
--    'MPI_C_FLOAT_COMPLEX': 'float _Complex',
--    'MPI_C_DOUBLE_COMPLEX': 'double _Complex',
--    'MPI_C_LONG_DOUBLE_COMPLEX': 'long double _Complex',
+@@ -49,19 +49,19 @@ predefined_mpi_dtype_consants = {
+     'MPI_C_FLOAT_COMPLEX': 'float _Complex',
+     'MPI_C_DOUBLE_COMPLEX': 'double _Complex',
+     'MPI_C_LONG_DOUBLE_COMPLEX': 'long double _Complex',
 -    'MPI_BYTE': 'char',
 -    'MPI_PACKED': 'char',
 -    # MPI 4
@@ -37,6 +33,19 @@ index 3772f8f7..cb14dc55 100644
 -    'MPI_LONG_INT': "struct {long a; int b;}",
 -    'MPI_SHORT_INT': "struct {short a; int b;}",
 -    'MPI_LONG_DOUBLE_INT': "struct {long double a; int b;}"
++    # 'MPI_BYTE': 'char',
++    # 'MPI_PACKED': 'char',
++    # # MPI 4
++    # 'MPI_AINT': 'MPI_Aint',
++    # 'MPI_COUNT': 'MPI_Count',
++    # 'MPI_OFFSET': 'MPI_Offset',
++    # # predefined struct types
++    # 'MPI_2INT': "struct {int a; int b;}",
++    # 'MPI_FLOAT_INT': "struct {float a; int b;}",
++    # 'MPI_DOUBLE_INT': "struct {double a; int b;}",
++    # 'MPI_LONG_INT': "struct {long a; int b;}",
++    # 'MPI_SHORT_INT': "struct {short a; int b;}",
++    # 'MPI_LONG_DOUBLE_INT': "struct {long double a; int b;}"
  }
  predefined_types = list(predefined_mpi_dtype_consants.keys())
  
