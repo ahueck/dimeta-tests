@@ -13,15 +13,13 @@ index abaca440..42ee7482 100644
                                          print("Generator has unknown feature: %s" % feature)
                                      valid = False
 diff --git a/scripts/Infrastructure/TemplateFactory.py b/scripts/Infrastructure/TemplateFactory.py
-index 3772f8f7..6e2d9aec 100644
+index 3772f8f7..ba6689db 100644
 --- a/scripts/Infrastructure/TemplateFactory.py
 +++ b/scripts/Infrastructure/TemplateFactory.py
-@@ -49,19 +49,19 @@ predefined_mpi_dtype_consants = {
-     'MPI_C_FLOAT_COMPLEX': 'float _Complex',
-     'MPI_C_DOUBLE_COMPLEX': 'double _Complex',
+@@ -51,17 +51,17 @@ predefined_mpi_dtype_consants = {
      'MPI_C_LONG_DOUBLE_COMPLEX': 'long double _Complex',
--    'MPI_BYTE': 'char',
--    'MPI_PACKED': 'char',
+     'MPI_BYTE': 'char',
+     'MPI_PACKED': 'char',
 -    # MPI 4
 -    'MPI_AINT': 'MPI_Aint',
 -    'MPI_COUNT': 'MPI_Count',
@@ -33,8 +31,6 @@ index 3772f8f7..6e2d9aec 100644
 -    'MPI_LONG_INT': "struct {long a; int b;}",
 -    'MPI_SHORT_INT': "struct {short a; int b;}",
 -    'MPI_LONG_DOUBLE_INT': "struct {long double a; int b;}"
-+    # 'MPI_BYTE': 'char',
-+    # 'MPI_PACKED': 'char',
 +    # # MPI 4
 +    # 'MPI_AINT': 'MPI_Aint',
 +    # 'MPI_COUNT': 'MPI_Count',
