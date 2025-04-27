@@ -8,7 +8,7 @@
 /* ///////////////////////// The MPI Bug Bench ////////////////////////
 
   Description: datatype missmatch: Buffer: MPI_INT MPI_Call:
-MPI_C_LONG_DOUBLE_COMPLEX
+MPI_C_DOUBLE_COMPLEX
 
   Version of MPI: 1.0
 
@@ -42,21 +42,21 @@ int main(int argc, char **argv) {
 
   signed int *buf_mpi_int = (signed int *)calloc(10, sizeof(signed int));
 
-  long double _Complex *buf_mpi_c_long_double_complex =
-      (long double _Complex *)calloc(10, sizeof(long double _Complex));
+  double _Complex *buf_mpi_c_double_complex =
+      (double _Complex *)calloc(10, sizeof(double _Complex));
 
   if (rank == 0) {
-    /*MBBERROR_BEGIN*/ MPI_Recv(buf_mpi_int, 10, MPI_C_LONG_DOUBLE_COMPLEX, 1,
-                                0, MPI_COMM_WORLD,
+    /*MBBERROR_BEGIN*/ MPI_Recv(buf_mpi_int, 10, MPI_C_DOUBLE_COMPLEX, 1, 0,
+                                MPI_COMM_WORLD,
                                 MPI_STATUS_IGNORE); /*MBBERROR_END*/
   }
   if (rank == 1) {
-    /*MBBERROR_BEGIN*/ MPI_Send(buf_mpi_int, 10, MPI_C_LONG_DOUBLE_COMPLEX, 0,
-                                0, MPI_COMM_WORLD); /*MBBERROR_END*/
+    /*MBBERROR_BEGIN*/ MPI_Send(buf_mpi_int, 10, MPI_C_DOUBLE_COMPLEX, 0, 0,
+                                MPI_COMM_WORLD); /*MBBERROR_END*/
   }
   free(buf);
   free(buf_mpi_int);
-  free(buf_mpi_c_long_double_complex);
+  free(buf_mpi_c_double_complex);
 
   MPI_Finalize();
   printf("Rank %d finished normally\n", rank);

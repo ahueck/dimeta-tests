@@ -3,11 +3,11 @@
 // RUN: cat %must-output-json | %filecheck %s
 
 
-// CHECK: MUST_ERROR_TYPEMATCH_MISMATCH
+// CHECK-NOT: MUST_ERROR_TYPEMATCH_MISMATCH
 
 /* ///////////////////////// The MPI Bug Bench ////////////////////////
 
-  Description: datatype missmatch: Buffer: MPI_INT MPI_Call: MPI_CHAR
+  Description:
 
   Version of MPI: 1.0
 
@@ -15,8 +15,8 @@
 
 BEGIN_MBB_TESTS
   $ mpirun -np 2 ${EXE}
-  | ERROR LocalParameterMissmatch
-  | LocalParameterMissmatch-Dtype-mpi_send
+  | OK
+  | Correct-mpi_send
 END_MBB_TESTS
 //////////////////////       End of MBI headers        /////////////////// */
 
@@ -37,23 +37,18 @@ int main(int argc, char **argv) {
     printf(
         "MBB ERROR: This test needs at least 2 processes to produce a bug!\n");
 
+  char *buf_mpi_packed = (char *)calloc(1, sizeof(char));
+
   int *buf = (int *)calloc(10, sizeof(int));
 
-  signed int *buf_mpi_int = (signed int *)calloc(10, sizeof(signed int));
-
-  char *buf_mpi_char = (char *)calloc(10, sizeof(char));
-
   if (rank == 0) {
-    /*MBBERROR_BEGIN*/ MPI_Recv(buf_mpi_int, 10, MPI_CHAR, 1, 0, MPI_COMM_WORLD,
-                                MPI_STATUS_IGNORE); /*MBBERROR_END*/
+    MPI_Recv(buf_mpi_packed, 1, MPI_PACKED, 1, 0, MPI_COMM_WORLD,
+             MPI_STATUS_IGNORE);
   }
   if (rank == 1) {
-    /*MBBERROR_BEGIN*/ MPI_Send(buf_mpi_int, 10, MPI_CHAR, 0, 0,
-                                MPI_COMM_WORLD); /*MBBERROR_END*/
+    MPI_Send(buf_mpi_packed, 1, MPI_PACKED, 0, 0, MPI_COMM_WORLD);
   }
   free(buf);
-  free(buf_mpi_int);
-  free(buf_mpi_char);
 
   MPI_Finalize();
   printf("Rank %d finished normally\n", rank);

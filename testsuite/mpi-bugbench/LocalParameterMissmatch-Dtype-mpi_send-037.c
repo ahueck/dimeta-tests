@@ -7,7 +7,7 @@
 
 /* ///////////////////////// The MPI Bug Bench ////////////////////////
 
-  Description: datatype missmatch: Buffer: MPI_INT MPI_Call: MPI_SIGNED_CHAR
+  Description: datatype missmatch: Buffer: MPI_INT MPI_Call: MPI_LONG_LONG
 
   Version of MPI: 1.0
 
@@ -41,21 +41,21 @@ int main(int argc, char **argv) {
 
   signed int *buf_mpi_int = (signed int *)calloc(10, sizeof(signed int));
 
-  signed char *buf_mpi_signed_char =
-      (signed char *)calloc(10, sizeof(signed char));
+  signed long long int *buf_mpi_long_long =
+      (signed long long int *)calloc(10, sizeof(signed long long int));
 
   if (rank == 0) {
-    /*MBBERROR_BEGIN*/ MPI_Recv(buf_mpi_int, 10, MPI_SIGNED_CHAR, 1, 0,
+    /*MBBERROR_BEGIN*/ MPI_Recv(buf_mpi_int, 10, MPI_LONG_LONG, 1, 0,
                                 MPI_COMM_WORLD,
                                 MPI_STATUS_IGNORE); /*MBBERROR_END*/
   }
   if (rank == 1) {
-    /*MBBERROR_BEGIN*/ MPI_Send(buf_mpi_int, 10, MPI_SIGNED_CHAR, 0, 0,
+    /*MBBERROR_BEGIN*/ MPI_Send(buf_mpi_int, 10, MPI_LONG_LONG, 0, 0,
                                 MPI_COMM_WORLD); /*MBBERROR_END*/
   }
   free(buf);
   free(buf_mpi_int);
-  free(buf_mpi_signed_char);
+  free(buf_mpi_long_long);
 
   MPI_Finalize();
   printf("Rank %d finished normally\n", rank);

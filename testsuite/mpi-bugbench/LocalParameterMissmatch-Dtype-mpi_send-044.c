@@ -7,7 +7,7 @@
 
 /* ///////////////////////// The MPI Bug Bench ////////////////////////
 
-  Description: datatype missmatch: Buffer: MPI_INT MPI_Call: MPI_LONG_DOUBLE
+  Description: datatype missmatch: Buffer: MPI_INT MPI_Call: MPI_FLOAT
 
   Version of MPI: 1.0
 
@@ -41,21 +41,20 @@ int main(int argc, char **argv) {
 
   signed int *buf_mpi_int = (signed int *)calloc(10, sizeof(signed int));
 
-  long double *buf_mpi_long_double =
-      (long double *)calloc(10, sizeof(long double));
+  float *buf_mpi_float = (float *)calloc(10, sizeof(float));
 
   if (rank == 0) {
-    /*MBBERROR_BEGIN*/ MPI_Recv(buf_mpi_int, 10, MPI_LONG_DOUBLE, 1, 0,
+    /*MBBERROR_BEGIN*/ MPI_Recv(buf_mpi_int, 10, MPI_FLOAT, 1, 0,
                                 MPI_COMM_WORLD,
                                 MPI_STATUS_IGNORE); /*MBBERROR_END*/
   }
   if (rank == 1) {
-    /*MBBERROR_BEGIN*/ MPI_Send(buf_mpi_int, 10, MPI_LONG_DOUBLE, 0, 0,
+    /*MBBERROR_BEGIN*/ MPI_Send(buf_mpi_int, 10, MPI_FLOAT, 0, 0,
                                 MPI_COMM_WORLD); /*MBBERROR_END*/
   }
   free(buf);
   free(buf_mpi_int);
-  free(buf_mpi_long_double);
+  free(buf_mpi_float);
 
   MPI_Finalize();
   printf("Rank %d finished normally\n", rank);

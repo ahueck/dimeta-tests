@@ -7,7 +7,7 @@
 
 /* ///////////////////////// The MPI Bug Bench ////////////////////////
 
-  Description: datatype missmatch: Buffer: MPI_DOUBLE MPI_Call: MPI_INT
+  Description: datatype missmatch: Buffer: MPI_PACKED MPI_Call: MPI_INT
 
   Version of MPI: 1.0
 
@@ -39,21 +39,21 @@ int main(int argc, char **argv) {
 
   int *buf = (int *)calloc(10, sizeof(int));
 
-  double *buf_mpi_double = (double *)calloc(10, sizeof(double));
+  char *buf_mpi_packed = (char *)calloc(10, sizeof(char));
 
   signed int *buf_mpi_int = (signed int *)calloc(10, sizeof(signed int));
 
   if (rank == 0) {
-    /*MBBERROR_BEGIN*/ MPI_Recv(buf_mpi_double, 10, MPI_INT, 1, 0,
+    /*MBBERROR_BEGIN*/ MPI_Recv(buf_mpi_packed, 10, MPI_INT, 1, 0,
                                 MPI_COMM_WORLD,
                                 MPI_STATUS_IGNORE); /*MBBERROR_END*/
   }
   if (rank == 1) {
-    /*MBBERROR_BEGIN*/ MPI_Send(buf_mpi_double, 10, MPI_INT, 0, 0,
+    /*MBBERROR_BEGIN*/ MPI_Send(buf_mpi_packed, 10, MPI_INT, 0, 0,
                                 MPI_COMM_WORLD); /*MBBERROR_END*/
   }
   free(buf);
-  free(buf_mpi_double);
+  free(buf_mpi_packed);
   free(buf_mpi_int);
 
   MPI_Finalize();
