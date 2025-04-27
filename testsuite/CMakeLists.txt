@@ -15,6 +15,8 @@ macro(pythonize_bool truth_var var)
 endmacro()
 
 ditests_find_llvm_progs(DITESTS_FILECHECK_EXEC "FileCheck-${LLVM_VERSION_MAJOR};FileCheck" ABORT_IF_MISSING)
+ditests_find_llvm_progs(DITEST_CLANG_EXEC "clang-${LLVM_VERSION_MAJOR};clang" ABORT_IF_MISSING)
+ditests_find_llvm_progs(DITEST_CLANGCXX_EXEC "clang++-${LLVM_VERSION_MAJOR};clang++" ABORT_IF_MISSING)
 
 if(LLVM_EXTERNAL_LIT)
   cmake_path(GET LLVM_EXTERNAL_LIT PARENT_PATH LLVM_EXTERNAL_LIT_DIR)
@@ -71,6 +73,12 @@ function(ditests_add_lit_target)
       set(TARGET_NAME check-ditests-${suite})
     endif()
 
+    if(NOT "${suite}" STREQUAL "mpi-bugbench")
+      set(depends ditest_pass)
+    else()
+      set(depends )
+    endif()
+
     if(NOT EXISTS ${SUITE_PATH} AND NOT "${suite}" STREQUAL "staging")
       message(WARNING "Could not find suitable lit test target at ${SUITE_PATH}")
       continue()
@@ -79,6 +87,7 @@ function(ditests_add_lit_target)
     ditests_add_lit_testsuite(${TARGET_NAME}
       "Running the lit suite ditests"
       ${SUITE_PATH}
+      DEPENDS ${depends}
       ARGS -v -j ${NUM_CPU}
       PARAMS ditests_site_config=${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg
     )
@@ -87,6 +96,8 @@ endfunction()
 
 set(DITESTS_SUITES
   all
+  mpi-bugbench
+  dimeta
 )
 
 ditests_add_lit_target(SUITES ${DITESTS_SUITES})

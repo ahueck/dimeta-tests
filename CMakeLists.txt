@@ -28,5 +28,7 @@ find_program(typeart_mpicc
 message(STATUS "TypeART mpicc wrapper is set to ${typeart_mpicc}")
 message(STATUS "MUST mustrun is set to ${must_run}")
 
+add_subdirectory(dimeta-pass)
+
 enable_testing()
 add_subdirectory(testsuite)
