@@ -1,4 +1,5 @@
 #include "Dimeta.h"
+#include "DimetaData.h"
 #include "DimetaIO.h"
 
 #include "llvm/ADT/STLExtras.h"
@@ -13,49 +14,82 @@
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Passes/PassPlugin.h"
 #include "llvm/Support/raw_ostream.h"
+#include <llvm/Support/Casting.h>
+#include <optional>
+#include <variant>
 
+#include "StructLayout.h"
 namespace ditest {
 
 class TestPass : public llvm::PassInfoMixin<TestPass> {
- public:
-  llvm::PreservedAnalyses run(llvm::Module& M, llvm::ModuleAnalysisManager&) {
-    llvm::for_each(M.functions(), [&](auto& func) { return runOnFunc(func); });
+public:
+  llvm::PreservedAnalyses run(llvm::Module &M, llvm::ModuleAnalysisManager &) {
+    // auto cu_types = dimeta::compile_unit_types(&M);
+    // if (cu_types) {
+    //   for (const auto &type_list : cu_types.value()) {
+    //     for (const auto &type_ : type_list.types) {
+    //       if (auto *pval = std::get_if<dimeta::QualifiedCompound>(&type_)) {
+    //         ditest::print_layout(llvm::errs(), *pval);
+    //         llvm::errs() << "\n";
+    //       }
+    //     }
+    //   }
+    // }
+
+    llvm::for_each(M.functions(), [&](auto &func) { return runOnFunc(func); });
     return llvm::PreservedAnalyses::all();
   }
 
-  static void runOnFunc(llvm::Function& func) {
+  static void print_as_yaml(llvm::raw_ostream &out,
+                            const dimeta::LocatedType &ditype) {
+    std::string yaml_string;
+    llvm::raw_string_ostream yaml_oss(yaml_string);
+    dimeta::io::emit(yaml_oss, ditype);
+    out << yaml_oss.str();
+  }
+
+  template <typename LLVMType>
+  static void print_iff_compound_type(const LLVMType *type) {
+    auto ditype = dimeta::located_type_for(type);
+    if (ditype &&
+        std::holds_alternative<dimeta::QualifiedCompound>(ditype->type)) {
+      print_as_yaml(llvm::errs(), ditype.value());
+      print_layout(llvm::errs(),
+                   *std::get_if<dimeta::QualifiedCompound>(&ditype->type));
+    }
+  }
+
+  static void runOnFunc(llvm::Function &func) {
     if (func.isDeclaration()) {
       return;
     }
 
-    for (auto& inst : llvm::instructions(func)) {
-      if (auto* call_inst = llvm::dyn_cast<llvm::CallBase>(&inst)) {
-        auto ditype = dimeta::located_type_for(call_inst);
-        if (ditype) {
-          std::string yaml_string;
-          llvm::raw_string_ostream yaml_oss(yaml_string);
-          dimeta::io::emit(yaml_oss, ditype.value());
-          llvm::errs() << yaml_oss.str();
-        }
+    for (auto &inst : llvm::instructions(func)) {
+      if (auto *call_inst = llvm::dyn_cast<llvm::CallBase>(&inst)) {
+        print_iff_compound_type(call_inst);
+      } else if (auto *alloca_inst = llvm::dyn_cast<llvm::AllocaInst>(&inst)) {
+        print_iff_compound_type(alloca_inst);
       }
     }
   }
 };
 
-}  // namespace ditest
+} // namespace ditest
 
 #define DEBUG_TYPE "ditest-pass"
 
 llvm::PassPluginLibraryInfo getPassPluginInfo() {
-  const auto callback = [](llvm::PassBuilder& PB) {
-    PB.registerPipelineStartEPCallback([&](llvm::ModulePassManager& MPM, llvm::OptimizationLevel) {
-      MPM.addPass(ditest::TestPass());
-    });
+  const auto callback = [](llvm::PassBuilder &PB) {
+    PB.registerPipelineStartEPCallback(
+        [&](llvm::ModulePassManager &MPM, llvm::OptimizationLevel) {
+          MPM.addPass(ditest::TestPass());
+        });
   };
 
   return {LLVM_PLUGIN_API_VERSION, DEBUG_TYPE, "0.0.1", callback};
 }
 
-extern "C" LLVM_ATTRIBUTE_WEAK llvm::PassPluginLibraryInfo llvmGetPassPluginInfo() {
+extern "C" LLVM_ATTRIBUTE_WEAK llvm::PassPluginLibraryInfo
+llvmGetPassPluginInfo() {
   return getPassPluginInfo();
 }

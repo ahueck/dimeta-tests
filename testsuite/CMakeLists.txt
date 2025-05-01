@@ -98,6 +98,7 @@ set(DITESTS_SUITES
   all
   mpi-bugbench
   dimeta
+  miniapp
 )
 
 ditests_add_lit_target(SUITES ${DITESTS_SUITES})
