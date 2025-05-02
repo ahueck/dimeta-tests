@@ -2,8 +2,10 @@
 // RUN: %must-mpiexec -n 2 %ditests_test_dir/%basename_t.exe
 // RUN: cat %must-output-json | %filecheck %s
 
-
 // CHECK: MUST_ERROR_TYPEMATCH_MISMATCH
+
+// false positive
+// XFAIL: *
 
 /* ///////////////////////// The MPI Bug Bench ////////////////////////
 
