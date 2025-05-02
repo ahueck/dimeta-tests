@@ -87,7 +87,7 @@ template <typename Type> std::string name_or_typedef_of(const Type &type) {
       if (!no_typedef) {
         return qual_type.typedef_name;
       }
-      return std::string{"unknown_t"};
+      return std::string{"anon_t"};
     } else {
       if (qual_type.type.encoding == dimeta::FundamentalType::kFunctionPtr) {
         return std::string{"fptr"};
@@ -278,7 +278,9 @@ void print_members(llvm::raw_ostream &out, const dimeta::CompoundType &compound,
     if (!detail::is_ptr(member_pointer->member)) {
       if (auto *pval =
               std::get_if<dimeta::QualifiedCompound>(&member_pointer->member)) {
-        print_struct(out, *pval, false, indent, offset);
+        if (array_of(*pval).empty()) {
+          print_struct(out, *pval, false, indent, offset);
+        }
       }
     }
   }

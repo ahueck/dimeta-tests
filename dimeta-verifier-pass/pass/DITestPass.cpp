@@ -67,12 +67,13 @@ public:
     if (func.isDeclaration()) {
       return;
     }
-
     for (auto &inst : llvm::instructions(func)) {
       if (auto *call_inst = llvm::dyn_cast<llvm::CallBase>(&inst)) {
+        if (call_inst->getCalledFunction()->getName() == "malloc") {
+          llvm::errs() << func.getName() << ":\n";
+          // llvm::errs() << *call_inst << "\n";
+        }
         print_type(call_inst);
-      } else if (auto *alloca_inst = llvm::dyn_cast<llvm::AllocaInst>(&inst)) {
-        // print_iff_compound_type(alloca_inst);
       }
     }
   }
