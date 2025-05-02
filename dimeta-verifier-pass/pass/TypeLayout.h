@@ -12,7 +12,6 @@ namespace ditest {
 
 /*
  Emulates Clang's `-Xclang -fdump-record-layouts` with some simplifications.
- Does not yet handle C++ inheritance.
 */
 void print_struct_layout(llvm::raw_ostream &,
                          const dimeta::QualifiedCompound &);
