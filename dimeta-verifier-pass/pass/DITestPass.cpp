@@ -2,6 +2,8 @@
 #include "DimetaData.h"
 #include "DimetaIO.h"
 
+#include "TypeLayout.h"
+
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/ADT/StringRef.h"
 #include "llvm/IR/Function.h"
@@ -18,7 +20,6 @@
 #include <optional>
 #include <variant>
 
-#include "StructLayout.h"
 namespace ditest {
 
 class TestPass : public llvm::PassInfoMixin<TestPass> {
@@ -48,14 +49,17 @@ public:
     out << yaml_oss.str();
   }
 
-  template <typename LLVMType>
-  static void print_iff_compound_type(const LLVMType *type) {
+  template <typename LLVMType> static void print_type(const LLVMType *type) {
     auto ditype = dimeta::located_type_for(type);
-    if (ditype &&
-        std::holds_alternative<dimeta::QualifiedCompound>(ditype->type)) {
-      print_as_yaml(llvm::errs(), ditype.value());
-      print_layout(llvm::errs(),
-                   *std::get_if<dimeta::QualifiedCompound>(&ditype->type));
+    if (ditype) {
+      if (std::holds_alternative<dimeta::QualifiedCompound>(ditype->type)) {
+        // print_as_yaml(llvm::errs(), ditype.value());
+        print_struct_layout(llvm::errs(),
+                            std::get<dimeta::QualifiedCompound>(ditype->type));
+      } else {
+        print_fundamental(llvm::errs(),
+                          std::get<dimeta::QualifiedFundamental>(ditype->type));
+      }
     }
   }
 
@@ -66,9 +70,9 @@ public:
 
     for (auto &inst : llvm::instructions(func)) {
       if (auto *call_inst = llvm::dyn_cast<llvm::CallBase>(&inst)) {
-        print_iff_compound_type(call_inst);
+        print_type(call_inst);
       } else if (auto *alloca_inst = llvm::dyn_cast<llvm::AllocaInst>(&inst)) {
-        print_iff_compound_type(alloca_inst);
+        // print_iff_compound_type(alloca_inst);
       }
     }
   }

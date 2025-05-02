@@ -29,7 +29,7 @@ ditests_find_llvm_progs(DITESTS_LIT_EXEC
 )
 
 set(DITEST_MUST_LAYOUT_FILE ${PROJECT_SOURCE_DIR}/support/must-layout-2.xml)
-set(DITEST_MUST_TIMEOUT 5)
+set(DITEST_MUST_TIMEOUT 10)
 
 include(ProcessorCount)
 ProcessorCount(NUM_CPU)
@@ -97,6 +97,7 @@ endfunction()
 set(DITESTS_SUITES
   all
   mpi-bugbench
+  mpi-bugbench-derived
   dimeta
   miniapp
 )

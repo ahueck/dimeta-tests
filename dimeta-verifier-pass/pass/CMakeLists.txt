@@ -1,6 +1,6 @@
 #### llvm-dimeta consumer pass
 add_llvm_pass_plugin(ditest_pass
-  DITestPass.cpp StructLayout.cpp
+  DITestPass.cpp TypeLayout.cpp
   LINK_LIBS LLVMDemangle LLVMSupport
 )
 

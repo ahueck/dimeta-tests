@@ -76,23 +76,18 @@ template <typename Type> std::string name_or_typedef_of(const Type &type) {
       const bool no_identifier = qual_type.type.identifier.empty();
       const bool no_name = qual_type.type.name.empty();
 
-      if (!no_typedef) {
-        return qual_type.typedef_name;
-      }
-
-      if (no_identifier && no_name && no_typedef) {
-        // return get_anon_struct_identifier(qual_type);
-        assert(false);
-      }
-
-      if (no_identifier && no_name) {
-        return qual_type.typedef_name;
-      }
-
       if (!no_name) {
         return qual_type.type.name;
       }
-      return qual_type.type.identifier;
+
+      if (!no_identifier) {
+        return qual_type.type.identifier;
+      }
+
+      if (!no_typedef) {
+        return qual_type.typedef_name;
+      }
+      return std::string{"unknown_t"};
     } else {
       if (qual_type.type.encoding == dimeta::FundamentalType::kFunctionPtr) {
         return std::string{"fptr"};
@@ -159,9 +154,9 @@ template <typename Type> std::string name_of_type(const Type &type) {
       if (!qual_type.type.name.empty() && name == qual_type.type.name) {
         switch (qual_type.type.type) {
         case dimeta::CompoundType::kClass:
-          return "class " + name;
+          return "class " + qual_type.type.name;
         case dimeta::CompoundType::kStruct:
-          return "struct " + name;
+          return "struct " + qual_type.type.name;
         default:
           break;
         }
@@ -289,9 +284,19 @@ void print_members(llvm::raw_ostream &out, const dimeta::CompoundType &compound,
   }
 }
 
-void print_layout(llvm::raw_ostream &out,
-                  const dimeta::QualifiedCompound &type) {
+void print_struct_layout(llvm::raw_ostream &out,
+                         const dimeta::QualifiedCompound &type) {
   print_struct(out, type);
+  out << "\n";
+}
+
+void print_fundamental(llvm::raw_ostream &out,
+                       const dimeta::QualifiedFundamental &type) {
+  using namespace detail;
+  PrintIndentNoOffset(out, 0);
+  out << qualified_type(type) << '\n';
+  PrintIndentNoOffset(out, 0);
+  out << "[sizeof=" << type.type.extent << "]\n";
   out << "\n";
 }
 
