@@ -31,6 +31,9 @@ ditests_find_llvm_progs(DITESTS_LIT_EXEC
 set(DITEST_MUST_LAYOUT_FILE ${PROJECT_SOURCE_DIR}/support/must-layout-2.xml)
 set(DITEST_MUST_TIMEOUT 10)
 
+set(DITESTS_TEST_DIR ${CMAKE_BINARY_DIR}/testsuite-exec)
+file(MAKE_DIRECTORY ${DITESTS_TEST_DIR})
+
 include(ProcessorCount)
 ProcessorCount(NUM_CPU)
 math(EXPR NUM_CPU "${NUM_CPU} / 4")
@@ -50,14 +53,27 @@ function(ditests_add_lit_testsuite target comment)
     list(APPEND TEST_PARAMS --param ${param})
   endforeach()
 
-  add_custom_target(${target}
+  add_custom_target(check-${target}
     COMMAND ${DITESTS_LIT_EXEC} ${ARG_ARGS} ${TEST_PARAMS} ${ARG_UNPARSED_ARGUMENTS}
     COMMENT "${comment}"
     USES_TERMINAL
   )
 
+  add_test(NAME ${target}
+    COMMAND ${DITESTS_LIT_EXEC} ${ARG_ARGS} ${TEST_PARAMS} ${ARG_UNPARSED_ARGUMENTS}
+  )
+
   if (ARG_DEPENDS)
-    add_dependencies(${target} ${ARG_DEPENDS})
+    add_dependencies(check-${target} ${ARG_DEPENDS})
+    
+    add_test(${target}_test_depend_build
+      "${CMAKE_COMMAND}"
+      --build "${CMAKE_BINARY_DIR}"
+      --config "$<CONFIG>"
+      --target ${ARG_DEPENDS}
+    )
+    set_tests_properties(${target}_test_depend_build PROPERTIES FIXTURES_SETUP test_fixture_${target})
+    set_tests_properties(${target} PROPERTIES FIXTURES_REQUIRED test_fixture_${target})
   endif()
 endfunction()
 
@@ -67,10 +83,10 @@ function(ditests_add_lit_target)
   foreach(suite IN LISTS ARG_SUITES)
     if("${suite}" STREQUAL "all")
       set(SUITE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
-      set(TARGET_NAME check-ditests)
+      set(TARGET_NAME ditests)
     else()
       set(SUITE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/${suite})
-      set(TARGET_NAME check-ditests-${suite})
+      set(TARGET_NAME ditests-${suite})
     endif()
 
     if(NOT "${suite}" STREQUAL "mpi-bugbench")
@@ -88,16 +104,14 @@ function(ditests_add_lit_target)
       "Running the lit suite ditests"
       ${SUITE_PATH}
       DEPENDS ${depends}
-      ARGS -v -j ${NUM_CPU}
+      ARGS -v -j ${NUM_CPU} --show-pass --show-xfail
       PARAMS ditests_site_config=${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg
     )
   endforeach()
 endfunction()
 
 set(DITESTS_SUITES
-  all
   mpi-bugbench
-  mpi-bugbench-derived
   dimeta
   miniapp
 )
@@ -105,10 +119,10 @@ set(DITESTS_SUITES
 ditests_add_lit_target(SUITES ${DITESTS_SUITES})
 
 
-add_test(
-  NAME ditests-lit-suite
-  COMMAND
-    ${DITESTS_LIT_EXEC} -j ${NUM_CPU} --param
-    ditests_site_config=${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg
-    ${CMAKE_CURRENT_SOURCE_DIR}
-)
+# add_test(
+#   NAME ditests-lit-suite
+#   COMMAND
+#     ${DITESTS_LIT_EXEC} -j ${NUM_CPU} --param
+#     ditests_site_config=${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg
+#     ${CMAKE_CURRENT_SOURCE_DIR}
+# )

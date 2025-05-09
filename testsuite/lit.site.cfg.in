@@ -21,7 +21,7 @@ config.test_pass="$<TARGET_FILE:ditest_pass>"
 
 config.environment['TYPEART_TYPEGEN_IR'] = os.getenv('TYPEART_TYPEGEN_IR', '0')
 
-config.ditests_build_dir="@DITESTS_BUILD_DIR@"
+config.ditests_dir="@DITESTS_TEST_DIR@"
 
 # Let the main config do the real work.
 config.loaded_site_config = True

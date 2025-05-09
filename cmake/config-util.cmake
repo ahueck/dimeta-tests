@@ -5,9 +5,6 @@ function(configure_ditests_lit_site_cfg input output)
   
   set(DITESTS_PROJECT_DIR ${PROJECT_SOURCE_DIR})
   set(DITESTS_BUILD_DIR ${CMAKE_BINARY_DIR})
-  set(DITESTS_TEST_CUSAN_DIR ${CMAKE_BINARY_DIR}/testsuite-exec)
-  file(MAKE_DIRECTORY ${DITESTS_TEST_CUSAN_DIR})
-  pythonize_bool(CUSAN_TEST_USE_TSAN_WORKAROUNDS DITESTS_WORKAROUND)
 
   file(READ ${input} contents)
   string(CONFIGURE "${contents}" contents @ONLY)

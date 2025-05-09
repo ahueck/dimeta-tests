@@ -5,7 +5,7 @@
 // CHECK: MUST_ERROR_TYPEMATCH_MISMATCH
 
 // false positive
-// XFAIL: *
+// XFAIL: dimeta
 
 /* ///////////////////////// The MPI Bug Bench ////////////////////////
 

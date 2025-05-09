@@ -1,4 +1,4 @@
-// RUN: %apply-dimeta-c %s |& %filecheck %s
+// RUN: DITESTPASS_YAML=1 %apply-dimeta-c %s |& %filecheck %s
 
 #include <stdlib.h>
 int main() {

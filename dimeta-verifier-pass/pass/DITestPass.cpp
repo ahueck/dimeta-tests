@@ -16,6 +16,8 @@
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Passes/PassPlugin.h"
 #include "llvm/Support/raw_ostream.h"
+
+#include <cstdlib>
 #include <llvm/Support/Casting.h>
 #include <optional>
 #include <variant>
@@ -23,7 +25,12 @@
 namespace ditest {
 
 class TestPass : public llvm::PassInfoMixin<TestPass> {
+private:
+  bool want_yaml{false};
+
 public:
+  TestPass() : want_yaml(std::getenv("DITESTPASS_YAML") != nullptr) {}
+
   llvm::PreservedAnalyses run(llvm::Module &M, llvm::ModuleAnalysisManager &) {
     // auto cu_types = dimeta::compile_unit_types(&M);
     // if (cu_types) {
@@ -49,11 +56,14 @@ public:
     out << yaml_oss.str();
   }
 
-  template <typename LLVMType> static void print_type(const LLVMType *type) {
+  template <typename LLVMType> void print_type(const LLVMType *type) {
     auto ditype = dimeta::located_type_for(type);
     if (ditype) {
+      if (want_yaml) {
+        print_as_yaml(llvm::errs(), ditype.value());
+        return;
+      }
       if (std::holds_alternative<dimeta::QualifiedCompound>(ditype->type)) {
-        // print_as_yaml(llvm::errs(), ditype.value());
         print_struct_layout(llvm::errs(),
                             std::get<dimeta::QualifiedCompound>(ditype->type));
       } else {
@@ -63,7 +73,7 @@ public:
     }
   }
 
-  static void runOnFunc(llvm::Function &func) {
+  void runOnFunc(llvm::Function &func) {
     if (func.isDeclaration()) {
       return;
     }
@@ -71,7 +81,6 @@ public:
       if (auto *call_inst = llvm::dyn_cast<llvm::CallBase>(&inst)) {
         if (call_inst->getCalledFunction()->getName() == "malloc") {
           llvm::errs() << func.getName() << ":\n";
-          // llvm::errs() << *call_inst << "\n";
         }
         print_type(call_inst);
       }

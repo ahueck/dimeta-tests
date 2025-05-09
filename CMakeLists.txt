@@ -25,7 +25,14 @@ find_program(typeart_mpicc
     NO_DEFAULT_PATH
 )
 
+find_program(typeart_mpicxx
+    NAME typeart-mpic++
+    PATHS ${MUST_PATH} ${MUST_PATH}/bin ${PROJECT_SOURCE_DIR}/must-dimeta/install/bin
+    NO_DEFAULT_PATH
+)
+
 message(STATUS "TypeART mpicc wrapper is set to ${typeart_mpicc}")
+message(STATUS "TypeART mpicc wrapper is set to ${typeart_mpicxx}")
 message(STATUS "MUST mustrun is set to ${must_run}")
 
 add_subdirectory(dimeta-verifier-pass)
