@@ -113,7 +113,7 @@ endfunction()
 set(DITESTS_SUITES
   mpi-bugbench
   dimeta
-  miniapp
+  minitypes
 )
 
 ditests_add_lit_target(SUITES ${DITESTS_SUITES})

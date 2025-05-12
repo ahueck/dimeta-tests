@@ -30,3 +30,23 @@
 *.exe
 *.out
 *.app
+
+# Other
+.cache
+
+# LLVM
+*.ll
+Output
+.lit*
+
+# TypeART & MUST
+*.yaml
+must_temp
+MUST_Output.json
+MUST_Output.html
+must-dimeta
+*.log
+
+# Miniapps
+traceranks
+outfile.tga

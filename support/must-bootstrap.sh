@@ -41,6 +41,7 @@ function must_config() {
         -DCMAKE_INSTALL_PREFIX="$install_f" \
         -DENABLE_TYPEART=ON \
         -DUSE_BACKWARD=False \
+        -DTYPEART_SOFTCOUNTERS=ON \
         -DCMAKE_BUILD_TYPE=Release
 }
 

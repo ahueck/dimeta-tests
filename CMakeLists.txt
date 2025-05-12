@@ -10,6 +10,7 @@ list(
 
 include(config-util)
 include(llvm-util)
+include(ctest-helper)
 
 add_subdirectory(support)
 
@@ -39,3 +40,4 @@ add_subdirectory(dimeta-verifier-pass)
 
 enable_testing()
 add_subdirectory(testsuite)
+add_subdirectory(miniapps)
