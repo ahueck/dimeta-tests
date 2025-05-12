@@ -3,6 +3,7 @@ function(ditest_add_integration_test name bench_dir bench_args exe_dir result_di
 
     set(MUST_OUTPUT  ${result_dir}/${name})
     set(TYPEART_OUTPUT ${result_dir}/${name}.yaml)
+    set(TEST_LOG_OUT_FILE ${result_dir}/${name}.out)
     file(MAKE_DIRECTORY ${MUST_OUTPUT})
 
     add_test(NAME test_build_${name}
@@ -22,13 +23,21 @@ function(ditest_add_integration_test name bench_dir bench_args exe_dir result_di
                 -P ${PROJECT_SOURCE_DIR}/cmake/verify-must-json-output.cmake
     )
 
+    add_test(
+        NAME test_log_parser_${name}
+        COMMAND ${Python3_EXECUTABLE}
+                ${PROJECT_SOURCE_DIR}/support/parse-log.py
+                ${result_dir}/${name}.out
+                ${result_dir}/${name}-counter.json
+    )
+
     set_tests_properties(test_build_${name} PROPERTIES DEPENDS test_clean_${name})
     set_tests_properties(test_clean_${name} test_build_${name} PROPERTIES FIXTURES_SETUP ${name}_fixture)
-    set_tests_properties(test_verifier_${name} PROPERTIES FIXTURES_CLEANUP ${name}_fixture)
+    set_tests_properties(test_verifier_${name} test_log_parser_${name} PROPERTIES FIXTURES_CLEANUP ${name}_fixture)
 
     string(REPLACE " " ";" bench_arg_list ${bench_args})
     set(MUST_ARGS --must:errorcode 0 --must:typeart --must:output json --must:quiet --must:output-dir ${MUST_OUTPUT} --must:temp ${MUST_OUTPUT}/must_temp)
-    set(MUST_OUT_ARGS > ${result_dir}/${name}.out)
+    set(MUST_OUT_ARGS &> ${TEST_LOG_OUT_FILE})
     add_test(NAME ${name}
         COMMAND "${must_run}" ${MUST_ARGS} ${bench_arg_list} ${MUST_OUT_ARGS}
         WORKING_DIRECTORY "${exe_dir}"

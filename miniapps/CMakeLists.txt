@@ -1,3 +1,5 @@
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
 set(DITEST_MINIAPP_INTEGRATION_RESULT ${PROJECT_BINARY_DIR}/miniapp-exec)
 file(MAKE_DIRECTORY ${DITEST_MINIAPP_INTEGRATION_RESULT})
 
@@ -18,3 +20,10 @@ foreach(bench bench_args bench_work_dir IN ZIP_LISTS benchmarks benchmark_args b
     ${DITEST_MINIAPP_INTEGRATION_RESULT}
   )
 endforeach()
+
+set(CLEAN_SCRIPT "${PROJECT_SOURCE_DIR}/cmake/clean-folder.cmake")
+
+add_custom_target(ditest-clean-miniapp-exec-folder
+    COMMAND ${CMAKE_COMMAND} -DFOLDER=${DITEST_MINIAPP_INTEGRATION_RESULT} -P ${CLEAN_SCRIPT}
+    COMMENT "Cleaning contents of ${DITEST_MINIAPP_INTEGRATION_RESULT}"
+)
