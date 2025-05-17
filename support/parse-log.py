@@ -9,7 +9,7 @@ TARGET_LABELS = [
     "Total stack",
     "Total global",
     "Addresses checked",
-    "Distinct Addresses checked",
+    "Distinct addresses checked",
     "Addresses missed",
 ]
 
