@@ -1,0 +1,28 @@
+@LIT_SITE_CFG_IN_HEADER@
+
+import sys
+import os
+
+config.llvm_version=@LLVM_VERSION_MAJOR@
+config.filecheck="@DITESTS_FILECHECK_EXEC@"
+
+# Tool specifics:
+config.typeart_mpicc="@typeart_mpicc@"
+config.must_run="@must_run@"
+config.must_layout="@DITEST_MUST_LAYOUT_FILE@"
+config.must_timeout=@DITEST_MUST_TIMEOUT@
+
+## LLVM toolchain:
+config.clang_cpp = "@DITEST_CLANGCXX_EXEC@"
+config.clang = "@DITEST_CLANG_EXEC@"
+
+# Test pass specifics:
+config.test_pass="$<TARGET_FILE:ditest_pass>"
+
+config.environment['TYPEART_TYPEGEN_IR'] = os.getenv('TYPEART_TYPEGEN_IR', '0')
+
+config.ditests_dir="@DITESTS_TEST_DIR@"
+
+# Let the main config do the real work.
+config.loaded_site_config = True
+lit_config.load_config(config, "@DITESTS_PROJECT_DIR@/testsuite/lit.cfg")

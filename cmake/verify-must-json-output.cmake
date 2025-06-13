@@ -1,0 +1,19 @@
+if(NOT EXISTS "${INPUT_FILE}")
+    message(SEND_ERROR "Input file does not exist: ${INPUT_FILE}")
+endif()
+
+file(SIZE "${INPUT_FILE}" FILE_SIZE)
+if(FILE_SIZE EQUAL 0)
+    message(SEND_ERROR "Input file is empty: ${INPUT_FILE}")
+endif()
+
+file(READ "${INPUT_FILE}" FILE_CONTENT)
+
+if(FILE_CONTENT MATCHES "MUST_ERROR_TYPEMATCH_MISMATCH")
+    message(SEND_ERROR "Found MUST_ERROR_TYPEMATCH_MISMATCH")
+endif()
+
+if(FILE_CONTENT MATCHES "MUST_ERROR_TYPEMATCH_LENGTH")
+    message(SEND_ERROR "Found MUST_ERROR_TYPEMATCH_LENGTH")
+endif()
+

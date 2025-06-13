@@ -1,0 +1,53 @@
+#BHEADER**********************************************************************
+# Copyright (c) 2008,  Lawrence Livermore National Security, LLC.
+# Produced at the Lawrence Livermore National Laboratory.
+# This file is part of HYPRE.  See file COPYRIGHT for details.
+#
+# HYPRE is free software; you can redistribute it and/or modify it under the
+# terms of the GNU Lesser General Public License (as published by the Free
+# Software Foundation) version 2.1 dated February 1999.
+#
+# $Revision: 2.4 $
+#EHEADER**********************************************************************
+
+
+# set the compiler here
+MPICC ?= OMPI_CC=clang mpicc
+CC = $(MPICC)
+
+# set compile flags here
+# MPI only:
+#   add '-DTIMER_USE_MPI'  to 'INCLUDE_CFLAGS'
+# MPI with OpenMP:
+#   add '-DHYPRE_USING_OPENMP -DTIMER_USE_MPI'  to 'INCLUDE_CFLAGS'
+# Use assumed partition (for thousands of processors):
+#   add '-DHYPRE_NO_GLOBAL_PARTITION'  to 'INCLUDE_CFLAGS'
+# Use 64-bit integers for global variables (needed for large problems
+#	with more than 2 billion variables)
+#   add '-DHYPRE_LONG_LONG'  to 'INCLUDE_CFLAGS'
+
+ifeq ($(TYPEART), yes) 
+	MORE_CF = -g
+else
+	MORE_CF = -O2 -g -std=c90
+endif
+
+TA_OPT_FLAGS = -O2 # flag for secong opt step
+
+INCLUDE_CFLAGS = -DTIMER_USE_MPI -DHYPRE_LONG_LONG -DHYPRE_NO_GLOBAL_PARTITION $(MORE_CF)
+
+#INCLUDE_CFLAGS = -O1 -g -Xclang -disable-llvm-passes -DTIMER_USE_MPI -DHYPRE_LONG_LONG
+
+TYPEART_LIBPATH = ${TYPEART_PATH}/lib
+LTYPEART_RT= -L$(TYPEART_LIBPATH) -ltypeart-rt 
+PASSES=-load $(TYPEART_LIBPATH)/meminstfinderpass.so -load $(TYPEART_LIBPATH)/typeartpass.so $(TA_FILE) -typeart-stats
+CALL_FILTER=-call-filter -call-filter-deep
+
+# set link flags here
+#INCLUDE_LFLAGS = -lm -openmp -qsmp
+ifeq ($(TYPEART), yes)
+  INCLUDE_LFLAGS = -lm ${LTYPEART_RT}
+else
+  INCLUDE_LFLAGS = -lm
+endif
+
