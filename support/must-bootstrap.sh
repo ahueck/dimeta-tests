@@ -32,6 +32,9 @@ function must_fetch() {
 
 function must_download() {
     cd "$base_must_f"
+    wget https://hpc.rwth-aachen.de/must/files/MUST-v1.11.0.tar.gz
+    tar -xzvf MUST-v1.11.0.tar.gz
+    mv MUST-v1.11.0 must-dimeta
 }
 
 function must_config() {
@@ -47,12 +50,12 @@ function must_config() {
 
 function must_install() {
     cd "$build_f"
-    make -j32 install install-prebuilds
+    make -j10 install install-prebuilds
 }
 
-must_fetch
-#must_patch
-#must_download
+# must_fetch
+# must_patch
+must_download
 must_config
 must_install
 

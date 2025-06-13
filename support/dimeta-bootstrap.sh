@@ -23,7 +23,7 @@ echo "Build to $build_f ; Install to $install_f"
 
 function dimeta_fetch() {
     cd "$base_dimeta_f"
-    git clone --depth 1 --branch feat/call-value-type https://github.com/ahueck/llvm-dimeta.git dimeta
+    git clone --depth 1 --branch v0.3.0  https://github.com/ahueck/llvm-dimeta.git dimeta
 }
 
 function dimeta_config() {

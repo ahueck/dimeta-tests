@@ -29,7 +29,7 @@ include(AddLLVM)
 FetchContent_Declare(
   llvm-dimeta
   GIT_REPOSITORY https://github.com/ahueck/llvm-dimeta
-  GIT_TAG feat/cuda-memory
+  GIT_TAG v0.3.0
   GIT_SHALLOW 1
 )
 FetchContent_MakeAvailable(llvm-dimeta)

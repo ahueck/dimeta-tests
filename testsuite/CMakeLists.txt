@@ -116,6 +116,13 @@ set(DITESTS_SUITES
   minitypes
 )
 
+set(DITEST_TESTSUITE_INTEGRATION_RESULT ${PROJECT_BINARY_DIR}/testsuite-exec)
+set(CLEAN_SCRIPT "${PROJECT_SOURCE_DIR}/cmake/clean-folder.cmake")
+add_custom_target(ditest-clean-testsuite
+  COMMAND ${CMAKE_COMMAND} -DFOLDER=${DITEST_TESTSUITE_INTEGRATION_RESULT} -P ${CLEAN_SCRIPT}
+  COMMENT "Cleaning contents of ${DITEST_TESTSUITE_INTEGRATION_RESULT}"
+)
+
 ditests_add_lit_target(SUITES ${DITESTS_SUITES})
 
 
