@@ -36,13 +36,14 @@ function(ditest_add_integration_test name bench_dir bench_args exe_dir result_di
     set_tests_properties(test_verifier_${name} test_log_parser_${name} PROPERTIES FIXTURES_CLEANUP ${name}_fixture)
 
     string(REPLACE " " ";" bench_arg_list ${bench_args})
-    set(MUST_ARGS --must:errorcode 0 --must:typeart --must:output json --must:quiet --must:output-dir ${MUST_OUTPUT} --must:temp ${MUST_OUTPUT}/must_temp)
+    set(MUST_ARGS --must:mpiexec "mpirun --oversubscribe" --must:nodl --must:errorcode 0 --must:typeart --must:output json --must:quiet --must:output-dir ${MUST_OUTPUT} --must:temp ${MUST_OUTPUT}/must_temp)
     set(MUST_OUT_ARGS &> ${TEST_LOG_OUT_FILE})
     add_test(NAME ${name}
         COMMAND "${must_run}" ${MUST_ARGS} ${bench_arg_list} ${MUST_OUT_ARGS}
         WORKING_DIRECTORY "${exe_dir}"
     )
 
-    set_property(TEST test_build_${name} ${name} PROPERTY ENVIRONMENT "TYPEART_TYPES=${TYPEART_OUTPUT}")    
+    set_property(TEST test_build_${name} ${name} PROPERTY ENVIRONMENT "TYPEART_TYPES=${TYPEART_OUTPUT}")   
+    # set_property(TEST ${name} ${name} PROPERTY ENVIRONMENT "MUST_MPIEXEC='mpirun --oversubscribe'")    
     set_tests_properties(${name} PROPERTIES FIXTURES_REQUIRED ${name}_fixture)
 endfunction()
