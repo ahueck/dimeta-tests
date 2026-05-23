@@ -247,6 +247,8 @@ set(MODEL_SRC
 # register out models <model_name> <preprocessor_def_name> <source files...>
 
 register_model(serial USE_SERIAL ${MODEL_SRC})
+register_model(cuda USE_CUDA ${MODEL_SRC})
+register_model(hip USE_HIP ${MODEL_SRC})
 
 if ("${MODEL}" STREQUAL omp-target)
     set(BIN_NAME omp-target-tealeaf)

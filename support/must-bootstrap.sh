@@ -1,8 +1,5 @@
 #!/bin/bash
 
-export CC=clang
-export CXX=clang++
-
 if [ ! -z "$1" ]; then
   typeart_branch="${1}"
   echo "Using typeart branch ${typeart_branch}"
@@ -27,6 +24,13 @@ function must_modules() {
     ml clang/18
 }
 
+function must_fetch() {
+    cd "$base_must_f"
+    git clone --branch develop  git@git-ce.rwth-aachen.de:hpc-research/correctness/MUST.git must-dimeta
+    cd must-dimeta
+    git submodule update --init --recursive
+}
+
 function must_download() {
     cd "$base_must_f" || return
     if [ -d "must-dimeta" ]; then
@@ -47,7 +51,7 @@ function must_patch_typeart() {
         echo "Removing existing 'typeart' folder."
         rm -rf typeart/
     fi
-    git clone -b ${typeart_branch} git@github.com:tudasc/TypeART.git typeart
+    git clone -b ${typeart_branch} https://github.com/tudasc/TypeART.git typeart
 }
 
 function must_config() {
@@ -67,8 +71,8 @@ function must_config() {
         -DENABLE_TYPEART=ON \
         -DTYPEART_SOFTCOUNTERS=ON \
         -DCMAKE_BUILD_TYPE=Release \
-        -DENABLE_FORTRAN=OFF
-        #        -DUSE_BACKWARD=OFF \
+        -DENABLE_FORTRAN=OFF \
+        -DUSE_BACKWARD=OFF 
 }
 
 function must_install() {
@@ -76,7 +80,8 @@ function must_install() {
     make -j10 install install-prebuilds
 }
 
-must_download
+#must_download
+must_fetch
 if [[ "$skip_patch" != 1 ]]; then
   must_patch_typeart
 fi
