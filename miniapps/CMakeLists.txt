@@ -3,7 +3,11 @@ find_package(Python3 REQUIRED COMPONENTS Interpreter)
 set(DITEST_MINIAPP_INTEGRATION_RESULT ${PROJECT_BINARY_DIR}/miniapp-exec)
 file(MAKE_DIRECTORY ${DITEST_MINIAPP_INTEGRATION_RESULT})
 
-set(ROCM_ARCH "gfx1031" CACHE STRING "ROCm architecture for HIP tests")
+set(DITESTS_ROCM_ARCH_DEFAULT "gfx1031")
+if(DITESTS_HIP_ARCH)
+  set(DITESTS_ROCM_ARCH_DEFAULT "${DITESTS_HIP_ARCH}")
+endif()
+set(ROCM_ARCH "${DITESTS_ROCM_ARCH_DEFAULT}" CACHE STRING "ROCm architecture for HIP tests")
 
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/tealeaf/build.sh.in
@@ -25,6 +29,17 @@ list(APPEND benchmark_args  "-np 8 ./lulesh2.0 -s 12 -i 100"
 list(APPEND benchmark_build_vars "" "" "" "" "MODEL=serial" "MODEL=cuda" "MODEL=hip" "")
 
 foreach(name bench_dir bench_work_dir bench_args build_vars IN ZIP_LISTS benchmark_names benchmark_dirs benchmark_work_dirs benchmark_args benchmark_build_vars)
+  
+  if(name STREQUAL "tealeaf-cuda" AND NOT DITESTS_CUDA_RUNNABLE)
+    message(STATUS "Skipping test ${name} (CUDA device not found)")
+    continue()
+  endif()
+
+  if(name STREQUAL "tealeaf-hip" AND NOT DITESTS_HIP_RUNNABLE)
+    message(STATUS "Skipping test ${name} (HIP device not found)")
+    continue()
+  endif()
+
   separate_arguments(build_var_list NATIVE_COMMAND ${build_vars})
   ditest_add_integration_test(${name} 
     ${CMAKE_CURRENT_SOURCE_DIR}/${bench_dir}
