@@ -11,6 +11,10 @@ function(ditest_add_integration_test name bench_dir bench_args exe_dir result_di
         WORKING_DIRECTORY ${bench_dir}
     )
 
+    if(name MATCHES ".*-(hip|cuda)")
+        set_property(TEST test_build_${name} APPEND PROPERTY ENVIRONMENT "TYPEART_GPU=1")
+    endif()
+
     add_test(NAME test_clean_${name}
         COMMAND "make" clean ${ARGN}
         WORKING_DIRECTORY ${bench_dir}
@@ -46,12 +50,18 @@ function(ditest_add_integration_test name bench_dir bench_args exe_dir result_di
         WORKING_DIRECTORY "${exe_dir}"
     )
 
-    set_property(TEST ${name} PROPERTY ENVIRONMENT 
+    set(TEST_ENV
         "TYPEART_TYPES=${TYPEART_OUTPUT}"
         "PRTE_ALLOW_RUN_AS_ROOT=1"
         "PRTE_ALLOW_RUN_AS_ROOT_CONFIRM=1"
         "OMPI_ALLOW_RUN_AS_ROOT=1"
         "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1"
     )
+
+    if(name MATCHES ".*-(hip|cuda)")
+        list(APPEND TEST_ENV "TYPEART_GPU=1")
+    endif()
+
+    set_property(TEST ${name} PROPERTY ENVIRONMENT ${TEST_ENV})
     set_tests_properties(${name} PROPERTIES FIXTURES_REQUIRED ${name}_fixture)
 endfunction()

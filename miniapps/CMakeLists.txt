@@ -3,7 +3,7 @@ find_package(Python3 REQUIRED COMPONENTS Interpreter)
 set(DITEST_MINIAPP_INTEGRATION_RESULT ${PROJECT_BINARY_DIR}/miniapp-exec)
 file(MAKE_DIRECTORY ${DITEST_MINIAPP_INTEGRATION_RESULT})
 
-set(ROCM_ARCH "gfx1030" CACHE STRING "ROCm architecture for HIP tests")
+set(ROCM_ARCH "gfx1031" CACHE STRING "ROCm architecture for HIP tests")
 
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/tealeaf/build.sh.in
