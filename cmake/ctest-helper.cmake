@@ -7,12 +7,16 @@ function(ditest_add_integration_test name bench_dir bench_args exe_dir result_di
     file(MAKE_DIRECTORY ${MUST_OUTPUT})
 
     add_test(NAME test_build_${name}
-        COMMAND "make" MPICC=${typeart_mpicc} MPICXX=${typeart_mpicxx}
+        COMMAND "make" MPICC=${typeart_mpicc} MPICXX=${typeart_mpicxx} ${ARGN}
         WORKING_DIRECTORY ${bench_dir}
     )
 
+    if(name MATCHES ".*-(hip|cuda)")
+        set_property(TEST test_build_${name} APPEND PROPERTY ENVIRONMENT "TYPEART_GPU=1")
+    endif()
+
     add_test(NAME test_clean_${name}
-        COMMAND "make" clean
+        COMMAND "make" clean ${ARGN}
         WORKING_DIRECTORY ${bench_dir}
     )
 
@@ -36,14 +40,28 @@ function(ditest_add_integration_test name bench_dir bench_args exe_dir result_di
     set_tests_properties(test_verifier_${name} test_log_parser_${name} PROPERTIES FIXTURES_CLEANUP ${name}_fixture)
 
     string(REPLACE " " ";" bench_arg_list ${bench_args})
-    set(MUST_ARGS --must:mpiexec "mpirun --oversubscribe" --must:nodl --must:errorcode 0 --must:typeart --must:output json --must:quiet --must:output-dir ${MUST_OUTPUT} --must:temp ${MUST_OUTPUT}/must_temp)
-    set(MUST_OUT_ARGS &> ${TEST_LOG_OUT_FILE})
+    set(MUST_ARGS --must:mpiexec \"mpirun --oversubscribe\" --must:nodl --must:stacktrace none --must:errorcode 0 --must:typeart --must:output json --must:quiet --must:output-dir ${MUST_OUTPUT} --must:temp ${MUST_OUTPUT}/must_temp)
+
+    string(REPLACE ";" " " MUST_ARGS_JOINED "${MUST_ARGS}")
+    string(REPLACE ";" " " BENCH_ARG_LIST_JOINED "${bench_arg_list}")
+
     add_test(NAME ${name}
-        COMMAND "${must_run}" ${MUST_ARGS} ${bench_arg_list} ${MUST_OUT_ARGS}
+        COMMAND /bin/bash -c "mkdir -p \"${MUST_OUTPUT}\" && \"${must_run}\" ${MUST_ARGS_JOINED} ${BENCH_ARG_LIST_JOINED} &> \"${TEST_LOG_OUT_FILE}\""
         WORKING_DIRECTORY "${exe_dir}"
     )
 
-    set_property(TEST test_build_${name} ${name} PROPERTY ENVIRONMENT "TYPEART_TYPES=${TYPEART_OUTPUT}")   
-    # set_property(TEST ${name} ${name} PROPERTY ENVIRONMENT "MUST_MPIEXEC='mpirun --oversubscribe'")    
+    set(TEST_ENV
+        "TYPEART_TYPES=${TYPEART_OUTPUT}"
+        "PRTE_ALLOW_RUN_AS_ROOT=1"
+        "PRTE_ALLOW_RUN_AS_ROOT_CONFIRM=1"
+        "OMPI_ALLOW_RUN_AS_ROOT=1"
+        "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1"
+    )
+
+    if(name MATCHES ".*-(hip|cuda)")
+        list(APPEND TEST_ENV "TYPEART_GPU=1")
+    endif()
+
+    set_property(TEST ${name} PROPERTY ENVIRONMENT ${TEST_ENV})
     set_tests_properties(${name} PROPERTIES FIXTURES_REQUIRED ${name}_fixture)
 endfunction()

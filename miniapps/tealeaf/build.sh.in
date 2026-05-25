@@ -1,0 +1,42 @@
+#!/bin/bash
+set -e
+
+MODEL=${1:-serial}
+COMMAND=${2:-build} # build or clean
+
+MPICC=${MPICC:-@typeart_mpicc@}
+MPICXX=${MPICXX:-@typeart_mpicxx@}
+BUILD_DIR="build-${MODEL}"
+
+if [ "$COMMAND" == "clean" ]; then
+    echo "Cleaning ${MODEL}..."
+    rm -rf "${BUILD_DIR}" "${MODEL}-tealeaf"
+    exit 0
+fi
+
+case $MODEL in
+  serial)
+    EXTRA_FLAGS=""
+    ;;
+  cuda)
+    CUDA_ARCH=${CUDA_ARCH:-sm_70}
+    EXTRA_FLAGS="-DCUDA_ARCH=${CUDA_ARCH} -DCMAKE_CUDA_ARCHITECTURES=${CUDA_ARCH#sm_} -DCMAKE_CUDA_COMPILER=${MPICXX}"
+    export TYPEART_GPU=1
+    ;;
+  hip)
+    ROCM_ARCH=${ROCM_ARCH:-@ROCM_ARCH@}
+    EXTRA_FLAGS="-DCMAKE_HIP_ARCHITECTURES=${ROCM_ARCH} -DCMAKE_HIP_COMPILER=${MPICXX}"
+    export TYPEART_GPU=1
+    ;;
+  *)
+    echo "Unknown model: $MODEL"
+    exit 1
+    ;;
+esac
+
+TYPEART_WRAPPER=OFF cmake \
+    -DENABLE_MPI=ON -B"${BUILD_DIR}" -DMODEL=${MODEL} -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_CXX_COMPILER="${MPICXX}" -DCMAKE_C_COMPILER="${MPICC}" ${EXTRA_FLAGS}
+
+cmake --build "${BUILD_DIR}" --clean-first -- -j$(nproc 2>/dev/null || echo 1)
+cp "${BUILD_DIR}/${MODEL}-tealeaf" .

@@ -11,6 +11,7 @@ list(
 include(config-util)
 include(llvm-util)
 include(ctest-helper)
+include(gpu-detection)
 
 add_subdirectory(support)
 
