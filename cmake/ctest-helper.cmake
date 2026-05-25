@@ -40,7 +40,7 @@ function(ditest_add_integration_test name bench_dir bench_args exe_dir result_di
     set_tests_properties(test_verifier_${name} test_log_parser_${name} PROPERTIES FIXTURES_CLEANUP ${name}_fixture)
 
     string(REPLACE " " ";" bench_arg_list ${bench_args})
-    set(MUST_ARGS --must:stacktrace none --must:errorcode 0 --must:typeart --must:output json --must:quiet --must:output-dir ${MUST_OUTPUT} --must:temp ${MUST_OUTPUT}/must_temp)
+    set(MUST_ARGS --must:mpiexec \"mpirun --oversubscribe\" --must:nodl --must:stacktrace none --must:errorcode 0 --must:typeart --must:output json --must:quiet --must:output-dir ${MUST_OUTPUT} --must:temp ${MUST_OUTPUT}/must_temp)
 
     string(REPLACE ";" " " MUST_ARGS_JOINED "${MUST_ARGS}")
     string(REPLACE ";" " " BENCH_ARG_LIST_JOINED "${bench_arg_list}")
